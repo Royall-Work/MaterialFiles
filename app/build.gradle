@@ -19,7 +19,7 @@ buildscript {
         classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.6'
     }
 }
-apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.android.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 //#endif
 
@@ -66,6 +66,8 @@ android {
         }
     }
     lint {
+        // For "Invalid package reference in library; not included in Android: javax.security.sasl.
+        // Referenced from org.apache.mina.proxy.ProxyAuthException."
         warning 'InvalidPackage', 'MissingTranslation'
     }
     buildTypes {
@@ -105,8 +107,7 @@ repositories {
     }
 }
 dependencies {
-    // We need https://github.com/bitfireAT/dav4jvm/commit/c1bc14348831bcdb00f3a6eec4859b81c7dc3728
-    implementation('com.github.bitfireAT:dav4jvm:c1bc14348831bcdb00f3a6eec4859b81c7dc3728') {
+    implementation('com.github.bitfireAT:dav4jvm:2.1.3') {
         exclude group: 'org.ogce', module: 'xpp3'
     }
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
