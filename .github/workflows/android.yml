@@ -28,6 +28,15 @@ jobs:
           java-version: '21'
           cache: gradle
 
+      - name: Build required dav4jvm commit locally
+        run: |
+          git clone --depth 1 https://github.com/bitfireAT/dav4jvm.git "$RUNNER_TEMP/dav4jvm"
+          git -C "$RUNNER_TEMP/dav4jvm" fetch --depth 1 origin c1bc14348831bcdb00f3a6eec4859b81c7dc3728
+          git -C "$RUNNER_TEMP/dav4jvm" checkout c1bc14348831bcdb00f3a6eec4859b81c7dc3728
+          chmod +x "$RUNNER_TEMP/dav4jvm/gradlew"
+          cd "$RUNNER_TEMP/dav4jvm"
+          ./gradlew --no-daemon publishToMavenLocal
+
       - name: Make Gradle executable
         run: chmod +x ./gradlew
 
