@@ -1,0 +1,65 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android build tools
+        run: sdkmanager "platforms;android-36" "build-tools;37.0.0"
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --stacktrace --warning-mode all
+
+      - name: Sign APK with Android test key
+        run: |
+          mkdir -p "$RUNNER_TEMP/testkey"
+          keytool -genkeypair \
+            -keystore "$RUNNER_TEMP/testkey/testkey.jks" \
+            -storepass android \
+            -keypass android \
+            -alias androiddebugkey \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+
+          "$ANDROID_HOME/build-tools/37.0.0/zipalign" -f 4 \
+            app/build/outputs/apk/debug/app-debug.apk \
+            "$RUNNER_TEMP/testkey/aligned.apk"
+
+          "$ANDROID_HOME/build-tools/37.0.0/apksigner" sign \
+            --ks "$RUNNER_TEMP/testkey/testkey.jks" \
+            --ks-pass pass:android \
+            --key-pass pass:android \
+            --ks-key-alias androiddebugkey \
+            --out "$RUNNER_TEMP/testkey/MaterialFiles-debug.apk" \
+            "$RUNNER_TEMP/testkey/aligned.apk"
+
+          "$ANDROID_HOME/build-tools/37.0.0/apksigner" verify --verbose \
+            "$RUNNER_TEMP/testkey/MaterialFiles-debug.apk"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MaterialFiles-debug
+          path: ${{ runner.temp }}/testkey/MaterialFiles-debug.apk
+          if-no-files-found: error
