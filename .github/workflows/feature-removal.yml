@@ -1,0 +1,68 @@
+name: Apply Feature Removal
+
+on:
+  push:
+    branches:
+      - remove-about-ftp-internet
+
+permissions:
+  contents: write
+
+jobs:
+  remove-features:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Remove About, FTP server, and INTERNET permission
+        shell: bash
+        run: |
+          set -e
+          rm -rf app/src/main/java/me/zhanghai/android/files/about
+          rm -rf app/src/main/java/me/zhanghai/android/files/ftpserver
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('app/src/main/java/me/zhanghai/android/files/navigation/NavigationItems.kt')
+          s = p.read_text()
+          s = s.replace('import me.zhanghai.android.files.about.AboutActivity\n', '')
+          s = s.replace('import me.zhanghai.android.files.ftpserver.FtpServerActivity\n', '')
+          old = '''private val menuItems: List<NavigationItem>\n    @Size(3)\n    get() = listOf(\n        IntentMenuItem(\n            R.drawable.shared_directory_icon_white_24dp, R.string.navigation_ftp_server,\n            FtpServerActivity::class.createIntent()\n        ),\n        IntentMenuItem(\n            R.drawable.settings_icon_white_24dp, R.string.navigation_settings,\n            SettingsActivity::class.createIntent()\n        ),\n        IntentMenuItem(\n            R.drawable.about_icon_white_24dp, R.string.navigation_about,\n            AboutActivity::class.createIntent()\n        )\n    )'''
+          new = '''private val menuItems: List<NavigationItem>\n    @Size(1)\n    get() = listOf(\n        IntentMenuItem(\n            R.drawable.settings_icon_white_24dp, R.string.navigation_settings,\n            SettingsActivity::class.createIntent()\n        )\n    )'''
+          if old not in s:
+              raise SystemExit('NavigationItems menu block not found')
+          p.write_text(s.replace(old, new))
+
+          p = Path('app/src/main/AndroidManifest.xml')
+          s = p.read_text()
+          s = s.replace('    <uses-permission android:name="android.permission.INTERNET" />\n', '')
+          patterns = [
+              r'\n        <activity\n            android:name="me\.zhanghai\.android\.files\.ftpserver\.FtpServerActivity".*?\n        </activity>\n',
+              r'\n        <service android:name="me\.zhanghai\.android\.files\.ftpserver\.FtpServerService".*?\n            android:foregroundServiceType="dataSync" />\n',
+              r'\n        <service\n            android:name="me\.zhanghai\.android\.files\.ftpserver\.FtpServerTileService".*?\n        </service>\n',
+              r'\n        <receiver android:name="me\.zhanghai\.android\.files\.ftpserver\.FtpServerReceiver" />\n',
+              r'\n        <activity\n            android:name="me\.zhanghai\.android\.files\.about\.AboutActivity".*?\n        </activity>\n',
+          ]
+          for pattern in patterns:
+              s, n = re.subn(pattern, '\n', s, flags=re.S)
+              if n == 0:
+                  raise SystemExit('Manifest block not found: ' + pattern)
+          p.write_text(s)
+
+          p = Path('app/build.gradle')
+          s = p.read_text()
+          s = s.replace("    implementation 'org.apache.ftpserver:ftpserver-core:1.2.1'\n", '')
+          s = re.sub(r"    // This is a dependency of org\.apache\.ftpserver:ftpserver-core.*?\n    }\n", '', s, flags=re.S)
+          p.write_text(s)
+          PY
+
+          rm -f .github/workflows/feature-removal.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Remove About page and FTP server'
+          git push origin HEAD:remove-about-ftp-internet
