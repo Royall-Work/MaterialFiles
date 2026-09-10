@@ -29,10 +29,12 @@ jobs:
           cache: gradle
 
       - name: Build required dav4jvm commit locally
+        env:
+          GIT_COMMIT: c1bc14348831bcdb00f3a6eec4859b81c7dc3728
         run: |
           git clone --depth 1 https://github.com/bitfireAT/dav4jvm.git "$RUNNER_TEMP/dav4jvm"
-          git -C "$RUNNER_TEMP/dav4jvm" fetch --depth 1 origin c1bc14348831bcdb00f3a6eec4859b81c7dc3728
-          git -C "$RUNNER_TEMP/dav4jvm" checkout c1bc14348831bcdb00f3a6eec4859b81c7dc3728
+          git -C "$RUNNER_TEMP/dav4jvm" fetch --depth 1 origin "$GIT_COMMIT"
+          git -C "$RUNNER_TEMP/dav4jvm" checkout "$GIT_COMMIT"
           chmod +x "$RUNNER_TEMP/dav4jvm/gradlew"
           cd "$RUNNER_TEMP/dav4jvm"
           ./gradlew --no-daemon publishToMavenLocal
