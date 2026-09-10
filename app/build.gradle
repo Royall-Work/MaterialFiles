@@ -66,8 +66,6 @@ android {
         }
     }
     lint {
-        // For "Invalid package reference in library; not included in Android: javax.security.sasl.
-        // Referenced from org.apache.mina.proxy.ProxyAuthException."
         warning 'InvalidPackage', 'MissingTranslation'
     }
     buildTypes {
@@ -105,9 +103,12 @@ repositories {
     maven {
         url 'https://jitpack.io'
     }
+    maven {
+        url 'https://maven.scijava.org/content/repositories/public/'
+    }
 }
 dependencies {
-    implementation('com.github.bitfireAT:dav4jvm:c1bc14348831bcdb00f3a6eec4859b81c7dc3728') {
+    implementation('com.github.bitfireAT:dav4jvm:2.2.1') {
         exclude group: 'org.ogce', module: 'xpp3'
     }
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
@@ -118,8 +119,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
-
-    // kotlinx-coroutines-android depends on kotlin-stdlib-jdk8
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     def kotlinx_coroutines_version = '1.10.2'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinx_coroutines_version"
@@ -147,7 +146,6 @@ dependencies {
     implementation 'com.drakeet.drawer:drawer:1.0.3'
     implementation 'com.h6ah4i.android.materialshadowninepatch:materialshadowninepatch:1.0.0'
     implementation 'com.h6ah4i.android.widget.advrecyclerview:advrecyclerview:1.0.0'
-    //noinspection NewerVersionAvailable
     implementation ('com.hierynomus:smbj:0.11.5') {
         exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
     }
@@ -185,7 +183,7 @@ dependencies {
     implementation 'me.zhanghai.android.libarchive:library:1.1.6'
     implementation 'me.zhanghai.android.libselinux:library:2.1.1'
     implementation 'me.zhanghai.android.retrofile:library:1.2.0'
-    implementation 'me.zhanghai.android.systemuihelper:library:1.0.0'
+    implementation 'me.zhanghai.android.systemuihelper:library:1.0.2'
     implementation 'org.apache.ftpserver:ftpserver-core:1.2.1'
     implementation ('org.apache.mina:mina-core') {
         version {
@@ -193,7 +191,6 @@ dependencies {
         }
     }
     implementation 'org.slf4j:slf4j-android:1.7.36'
-
 //#ifdef NONFREE
     implementation platform('com.google.firebase:firebase-bom:34.11.0')
     implementation 'com.google.firebase:firebase-analytics'
