@@ -1,0 +1,37 @@
+name: Test Install
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-install:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Make Gradle executable
+        run: chmod +x ./gradlew
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Start emulator and install APK
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_2
+          script: |
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            adb shell pm list packages | grep -q '^package:me.zhanghai.android.files$'
