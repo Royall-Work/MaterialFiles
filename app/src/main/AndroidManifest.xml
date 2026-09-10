@@ -227,7 +227,6 @@
             android:label="@string/navigation_edit_bookmark_directory_title"
             android:theme="@style/Theme.MaterialFiles.Translucent" />
 
-
         <activity
             android:name="me.zhanghai.android.files.settings.SettingsActivity"
             android:exported="true"
@@ -258,6 +257,40 @@
             android:launchMode="singleTop"
             android:theme="@style/Theme.MaterialFiles" />
 
+        <activity
+            android:name="me.zhanghai.android.files.fileaction.ArchivePasswordDialogActivity"
+            android:autoRemoveFromRecents="true"
+            android:theme="@style/Theme.MaterialFiles.Translucent" />
+
+        <activity
+            android:name="me.zhanghai.android.files.filejob.FileJobErrorDialogActivity"
+            android:autoRemoveFromRecents="true"
+            android:theme="@style/Theme.MaterialFiles.Translucent" />
+
+        <activity
+            android:name="me.zhanghai.android.files.filejob.FileJobConflictDialogActivity"
+            android:autoRemoveFromRecents="true"
+            android:theme="@style/Theme.MaterialFiles.Translucent" />
+
+        <activity
+            android:name="me.zhanghai.android.files.viewer.saveas.SaveAsActivity"
+            android:autoRemoveFromRecents="true"
+            android:exported="true"
+            android:label="@string/save_as_title"
+            android:theme="@style/Theme.MaterialFiles.Translucent">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:mimeType="*/*"
+                    android:scheme="content" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name="me.zhanghai.android.files.viewer.text.TextEditorActivity"
@@ -295,8 +328,6 @@
             android:name="me.zhanghai.android.files.filejob.FileJobService"
             android:foregroundServiceType="dataSync" />
 
-
-
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
             android:enabled="false"
@@ -318,7 +349,6 @@
             android:grantUriPermissions="true" />
 
         <receiver android:name="me.zhanghai.android.files.filejob.FileJobReceiver" />
-
 
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
